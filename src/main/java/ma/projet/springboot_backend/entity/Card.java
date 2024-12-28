@@ -14,11 +14,21 @@ public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String student_id;
-    private String name;
-    private int school_year;
-    private String school_adress;
-    private String student_level;
+
+    @Column(name = "card_type")
+    private String cardType;
+
+    @Column(name = "student_name")
+    private String studentName;
+
+    @Column(name = "school_year")
+    private String schoolYear;
+
+    @Column(name = "student_level")
+    private String studentLevel;
+
+    @Column(name = "school_address")
+    private String schoolAddress;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
