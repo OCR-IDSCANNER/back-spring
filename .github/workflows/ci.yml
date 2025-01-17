@@ -21,7 +21,9 @@ jobs:
         with:
           distribution: 'temurin' # Ou 'zulu', selon votre préférence
           java-version: '17'      # Remplacez par la version de Java de votre projet
-
+        
+      - name: Set Execution Permissions for mvnw
+        run: chmod +x ./mvnw
       - name: Cache Maven Dependencies
         uses: actions/cache@v3
         with:
