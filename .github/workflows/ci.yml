@@ -4,14 +4,12 @@ on:
   push:
     branches:
       - main
-      - develop  # Modifiez selon vos branches principales
+      - develop  # Add other branches if needed
   pull_request:
 
 jobs:
-  test:
-    name: Run Spring Boot Tests
-    runs-on: ubuntu-22.04 
-
+  build-and-test:
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Code
@@ -20,19 +18,11 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin' # Ou 'zulu', selon votre préférence
-          java-version: '17'      # Remplacez par la version de Java de votre projet
-        
-      - name: Set Execution Permissions for mvnw
-        run: chmod +x ./mvnw
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          distribution: 'temurin'
+          java-version: '17' # Replace with your project's Java version
 
-      - name: Install Dependencies and Run Tests
-        run: |
-          ./mvnw clean install -DskipTests=false
+      - name: Grant Execute Permission to mvnw
+        run: chmod +x ./mvnw
+
+      - name: Build and Test
+        run: ./mvnw clean install -DskipTests=false
