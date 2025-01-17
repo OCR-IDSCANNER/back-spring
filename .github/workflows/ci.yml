@@ -4,29 +4,12 @@ on:
   push:
     branches:
       - main
-      - develop  # Modifiez selon vos branches principales
+      - develop  # Add other branches if needed
   pull_request:
 
 jobs:
-  test:
-    name: Run Spring Boot Tests
+  build-and-test:
     runs-on: ubuntu-22.04
-
-    services:
-      db:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: testdb
-          MYSQL_USER: testuser
-          MYSQL_PASSWORD: testpassword
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
 
     steps:
       - name: Checkout Code
@@ -35,30 +18,11 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin' # Ou 'zulu', selon votre préférence
-          java-version: '17'      # Remplacez par la version de Java de votre projet
+          distribution: 'temurin'
+          java-version: '17' # Replace with your project's Java version
 
-      - name: Wait for MySQL
-        run: |
-          for i in {1..30}; do
-            if mysqladmin ping -h 127.0.0.1 -u testuser -ptestpassword --silent; then
-              break
-            fi
-            echo "Waiting for database connection..."
-            sleep 2
-          done
-
-      - name: Set Execution Permissions for mvnw
+      - name: Grant Execute Permission to mvnw
         run: chmod +x ./mvnw
 
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Install Dependencies and Run Tests
-        run: |
-          ./mvnw clean install -DskipTests=false
+      - name: Build and Test
+        run: ./mvnw clean install -DskipTests=false
