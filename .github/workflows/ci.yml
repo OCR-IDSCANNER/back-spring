@@ -10,8 +10,23 @@ on:
 jobs:
   test:
     name: Run Spring Boot Tests
-    runs-on: ubuntu-22.04 
+    runs-on: ubuntu-22.04
 
+    services:
+      db:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       - name: Checkout Code
@@ -22,9 +37,20 @@ jobs:
         with:
           distribution: 'temurin' # Ou 'zulu', selon votre préférence
           java-version: '17'      # Remplacez par la version de Java de votre projet
-        
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -u testuser -ptestpassword --silent; then
+              break
+            fi
+            echo "Waiting for database connection..."
+            sleep 2
+          done
+
       - name: Set Execution Permissions for mvnw
         run: chmod +x ./mvnw
+
       - name: Cache Maven Dependencies
         uses: actions/cache@v3
         with:
