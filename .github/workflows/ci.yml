@@ -1,0 +1,35 @@
+name: CI for Spring Boot
+
+on:
+  push:
+    branches:
+      - main
+      - develop  # Modifiez selon vos branches principales
+  pull_request:
+
+jobs:
+  test:
+    name: Run Spring Boot Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # Ou 'zulu', selon votre préférence
+          java-version: '17'      # Remplacez par la version de Java de votre projet
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Install Dependencies and Run Tests
+        run: |
+          ./mvnw clean install -DskipTests=false
